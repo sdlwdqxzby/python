@@ -39,7 +39,7 @@ class spider():
     def clean_content(self):
         word_list = self.dbinf('select * from pic_to_word;') # [(piccode,word)(,..)]
         for i in word_list:
-            self.content = self.content.replace(i[0],i[1])
+            self.content = re.sub(i[0],i[1],self.content)
 
 
     # 数据库读取
@@ -60,7 +60,7 @@ class spider():
 
     def save(self):
         filename = self.title_i + '-' + self.title_ii + '.txt'
-        filename.replace('*','')
+        filename = re.sub(r'\*|\?|\/|\\|\:|\||\"|\<|\>','',filename)
         file_path = path.join(self.file_path, filename)
         self.clean_content()
         with open(file_path,'w') as f:
