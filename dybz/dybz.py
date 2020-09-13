@@ -19,7 +19,7 @@ class spider():
         self.dir_path = path.join(path.dirname(__file__), 'data')
         if path.exists(self.dir_path) == False:
             mkdir(self.dir_path)
-        self.file_path = path.join(self.dir_path,'book')
+        self.file_path = r'F:/坚果云同步/资料/文档/book'
         if path.exists(self.file_path) == False:
             mkdir(self.file_path)
 
@@ -65,6 +65,7 @@ class spider():
         self.clean_content()
         with open(file_path,'w') as f:
             f.write(self.content)
+        print(self.content)
         print('已保存，开始下一章节')
 
 
@@ -78,7 +79,7 @@ class spider():
         output = []
         for i in range(1,page_num+1):
             perpage_url = re.sub(r'\/$', f'_{i}/', self.url_i)
-            sleep(3)
+            sleep(4)
             page_inf = get(perpage_url, headers = self.headers).text
             output += re.findall(r'<li>\s*<a\s*href="([^"]+)">([^<>]*)<\/a>\s*<\/li>',page_inf)
             print(f'目录第{i}页获取完毕')
@@ -86,8 +87,11 @@ class spider():
         return output     
 
     def main(self):
-        data = get(self.url_rank,headers = self.headers).text
-        url_ml_list = re.findall('<a class="name" href="([^"]*)">([^<>]*)<\/a>', data) # [(url,title)(,...)]
+        if type(self.url_rank) == str:
+            data = get(self.url_rank,headers = self.headers).text
+            url_ml_list = re.findall('<a class="name" href="([^"]*)">([^<>]*)<\/a>', data) # [(url,title)(,...)]
+        else:
+            url_ml_list = self.url_rank
         
         # 获取文章列表
         for article_i in url_ml_list:
@@ -107,16 +111,23 @@ class spider():
                 if exists:
                     print(f'已抓取，跳过该章')
                     continue
+
                 print(f'开始抓取文章：{self.title_ii}')
-                articl_data = get(self.url_ii, headers = self.headers).text
+                try:
+                    sleep(4)
+                    articl_data = get(self.url_ii, headers = self.headers).text
+                except:
+                    continue
 
                 # 获取三级链接目录
                 artical_iii_list = re.findall(r'<a href="([^"]+)"[^<>]*>【(\d+)】<\/a>', articl_data)
+                self.content = ''
                 if artical_iii_list:
-                    for artical_iii in artical_iii_list:
+                    for artical_iii in artical_iii_list:  
                         self.title_iii = artical_iii[1]
                         self.url_iii = self.url_i + artical_iii[0]
-                        sleep(3)
+                        sleep(4)
+                        print(f'抓取{self.title_iii}页')
                         data = get(self.url_iii).text
                         content = re.findall(r'<div class="page-content font-large">(.*?)<\/div>',data,flags=re.DOTALL)
                         if content:
@@ -134,7 +145,8 @@ class spider():
                 self.dbinf(sql,'w')
 
 
-for i in range(1,2):
-    url = f'https://diyibanzhu9.org/shuku/0-allvisit-0-{i}.html'
-    crawler = spider(url)
-    crawler.main()
+url_list = [
+    ['/2/2407/', '我的美艳校长妈妈']
+    ]
+crawler = spider(url_list)
+crawler.main()

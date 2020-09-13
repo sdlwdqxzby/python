@@ -12,15 +12,15 @@ def clean(data):
         data = re.sub(i[0],i[1],data)
     return data
 
-bookdir = r'D:/git/python/dybz/data/book/'
-filename = '艳情短篇合集全文阅读-【夜归的女白领】作者：夜羽寒.txt'
+filename = '英雄们的妓女传记-英雄们的妓女传记（13）'
+filename_path = f'F:/坚果云同步/资料/文档/book/{filename}.txt'
 data = ''
-with open(bookdir + filename,'r') as f:
+with open(filename_path,'r') as f:
      for lines in f.readlines():
          data += lines
          data = clean(data)
 
-with open(bookdir + filename,'w') as f:
+with open(filename_path,'w') as f:
     f.write(data)
 
 img = re.findall('.{5}<img[^<>]*>.{5}',data)
